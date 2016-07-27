@@ -3,7 +3,7 @@
   'use strict';
 
   var wunderlistSDK;
-  var $lists, $tasks, $details;
+  var $lists, $tasks, $details, $user;
 
   // When document loaded
   $(function () {
@@ -11,6 +11,8 @@
     $lists = $('.stack.lists');
     $tasks = $('.stack.tasks');
     $details = $('.stack.details');
+	
+	$user = $('.stack.user');
 
     var SDK = global.wunderlist.sdk;
     wunderlistSDK = new SDK({
@@ -24,9 +26,17 @@
 
   function start () {
 
+	wunderlistSDK.http.users.all().done(function(lst) {
+		console.log(lst);
+	});
+	loadUser();
     loadLists();
   }
 
+  function loadUser() {
+	  wunderlistSDK.http.user.all().done(displayUserDetails);
+  }
+  
   function loadLists () {
 
     wunderlistSDK.http.lists.all().done(displayLists);
@@ -73,6 +83,30 @@
     console.log(details);
 
     var $table = $details.find('table');
+    var frag = document.createDocumentFragment();
+
+    var tr, key, value;
+    for (var attribute in details) {
+
+      tr = document.createElement('tr');
+      key = document.createElement('td');
+      key.textContent = attribute;
+      value = document.createElement('td');
+      value.textContent = details[attribute];
+
+      tr.appendChild(key);
+      tr.appendChild(value);
+
+      frag.appendChild(tr);
+    }
+    $table.html(frag);
+  }
+
+  function displayUserDetails (details) {
+
+    console.log(details);
+
+    var $table = $user.find('table');
     var frag = document.createDocumentFragment();
 
     var tr, key, value;
